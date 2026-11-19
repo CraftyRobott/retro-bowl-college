@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,26 +15,35 @@
     <title>Retro Bowl College (no Poki)</title>
 
     <style>
+        html,
         body {
+            width: 100%;
+            height: 100%;
             background: #000;
             color: #cccccc;
-            margin: 0px;
-            padding: 0px;
-            border: 0px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            overflow: hidden;
         }
 
         canvas {
+            display: block;
             image-rendering: pixelated;
+            image-rendering: crisp-edges;
             -webkit-interpolation-mode: nearest-neighbor;
             touch-action: none;
-            margin: 0px;
-            padding: 0px;
-            border: 0px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            max-width: none;
+            max-height: none;
         }
 
+        /* Keep fullscreen sizing under integer-scaling control */
         :-webkit-full-screen #canvas {
-            width: 100%;
-            height: 100%;
+            width: auto;
+            height: auto;
         }
 
         :-webkit-full-screen {
@@ -42,9 +52,11 @@
         }
 
         div.gm4html5_div_class {
-            margin: 0px;
-            padding: 0px;
-            border: 0px;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            border: 0;
         }
 
         div.gm4html5_login {
@@ -79,8 +91,7 @@
             style="display:none;" />
 
         <!-- Canvas -->
-        <canvas id="canvas" width="853" height="480"
-            style="position: absolute; top: 50%; left: 50%; bottom: -50%; right: -50%; transform: translate(-50%, -50%);">
+        <canvas id="canvas" width="853" height="480">
             <p>Your browser doesn't support HTML5 canvas.</p>
         </canvas>
     </div>
@@ -109,6 +120,7 @@
 
     <!-- Load mods AFTER the engine (engine/mods/loader.js) -->
     <script type="text/javascript" src="engine/mods/loader.js"></script>
+
 
     <!-- NO POKI — game starts directly on load -->
 </body>
