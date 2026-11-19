@@ -72,6 +72,19 @@
         }
     }
 
+    // Lighten a color while preserving its packed channel layout.
+    function lightenColor(color, amount) {
+        var r = color & 255;
+        var g = (color >> 8) & 255;
+        var b = (color >> 16) & 255;
+
+        r = Math.min(255, Math.round(r + (255 - r) * amount));
+        g = Math.min(255, Math.round(g + (255 - g) * amount));
+        b = Math.min(255, Math.round(b + (255 - b) * amount));
+
+        return r | (g << 8) | (b << 16);
+    }
+
     function install() {
         var original = window.gml_Script_s_draw_scoreboard;
 
@@ -118,7 +131,6 @@
                 var LIGHT = 0x454545;
                 var WHITE = 16777215;
                 var GRAY = 0xAAAAAA;
-                var ACCENT = 0x777777;
 
                 // Live game information.
                 var awayTeam = _inst.gmlteam[0];
@@ -152,6 +164,10 @@
                     _inst, _other, homeTeam
                 );
 
+                // Create slightly lighter versions for the top gradient.
+                var awayAccentColor = lightenColor(awayPanelColor, 0.22);
+                var homeAccentColor = lightenColor(homePanelColor, 0.22);
+
                 // BACKGROUND
                 draw_set_alpha(1);
 
@@ -169,7 +185,7 @@
                     DARK, DARK, DARK, DARK, 0
                 );
 
-                // Away panel - entire panel uses away uniform color.
+                // Away panel - away uniform color.
                 draw_rectangle_colour(
                     barX, barY,
                     leftEnd, barY + barH,
@@ -184,7 +200,7 @@
                     BLACK, BLACK, BLACK, BLACK, 0
                 );
 
-                // Home panel - entire panel uses home uniform color.
+                // Home panel - home uniform color.
                 draw_rectangle_colour(
                     centerEnd, barY,
                     barRight, barY + barH,
@@ -192,11 +208,15 @@
                     homePanelColor, homePanelColor, 0
                 );
 
-                // Top accent.
+                // Top accent - gradient between lighter team colors.
                 draw_rectangle_colour(
                     barX, barY,
                     barRight, barY + (3 * scale),
-                    ACCENT, ACCENT, ACCENT, ACCENT, 0
+                    awayAccentColor,
+                    homeAccentColor,
+                    homeAccentColor,
+                    awayAccentColor,
+                    0
                 );
 
                 // Separators.
