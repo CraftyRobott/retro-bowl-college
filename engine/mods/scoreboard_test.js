@@ -2,40 +2,75 @@
 (function () {
     "use strict";
 
-    console.log("[Mod Test] Installing instance creation monitor");
+    console.log("[Scoreboard Test] Starting...");
 
-    try {
-        if (typeof window._181 !== "function") {
-            console.error("[Mod Test] Room manager constructor unavailable");
-            return;
-        }
+    if (window.__scoreboardTestPatched) {
+        console.warn("[Scoreboard Test] Already installed.");
+        return;
+    }
 
-        var originalCreate = window._181.prototype._1n;
+    var attempts = 0;
+    var retryTimer = null;
 
-        if (typeof originalCreate !== "function") {
-            console.error("[Mod Test] _1n method unavailable");
-            return;
-        }
+    function installPatch() {
+        var original = window.gml_Script_s_draw_scoreboard;
 
-        window._181.prototype._1n = function (x, y, objectId) {
-            var instance = originalCreate.apply(this, arguments);
+        if (typeof original !== "function") {
+            attempts++;
 
-            if (objectId === 83) {
-                console.log("[Mod Test] SCOREBOARD INSTANCE CREATED", {
-                    x: x,
-                    y: y,
-                    instanceId: instance && instance.id,
-                    objectName: instance && instance._WF,
-                    objectId: instance && instance._EQ
-                });
+            if (attempts >= 200) {
+                clearInterval(retryTimer);
+                console.error(
+                    "[Scoreboard Test] Could not find HUD drawing function."
+                );
             }
 
-            return instance;
+            return;
+        }
+
+        clearInterval(retryTimer);
+
+        window.gml_Script_s_draw_scoreboard = function (_inst, _other) {
+            var result = original.apply(this, arguments);
+
+            try {
+                draw_set_font(global.gmlfnt_small_flex);
+                draw_set_halign(0);
+                draw_set_valign(1);
+                draw_set_alpha(1);
+
+                gml_Script_draw_hd_text_color(
+                    _inst,
+                    _other,
+                    16,
+                    25,
+                    "SCOREBOARD MOD ACTIVE",
+                    65535,
+                    65535,
+                    65535,
+                    65535,
+                    1
+                );
+            } catch (error) {
+                if (!window.__scoreboardDrawError) {
+                    window.__scoreboardDrawError = true;
+                    console.error(
+                        "[Scoreboard Test] Drawing failed:",
+                        error
+                    );
+                }
+            }
+
+            return result;
         };
 
-        console.log("[Mod Test] Instance creation monitor installed");
+        window.__scoreboardTestPatched = true;
 
-    } catch (error) {
-        console.error("[Mod Test] Monitor installation failed:", error);
+        console.log(
+            "[Scoreboard Test] HUD drawing function successfully patched!"
+        );
     }
+
+    retryTimer = setInterval(installPatch, 50);
+    installPatch();
 })();
